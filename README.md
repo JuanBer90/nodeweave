@@ -6,6 +6,8 @@ Nodeweave is a small, framework-agnostic TypeScript library for rendering animat
   <img src="./docs/nodeweave-playground.webp" alt="Nodeweave interactive visualization demo" width="100%">
 </p>
 
+<p align="center"><a href="https://juanber90.github.io/nodeweave/">Live Demo</a></p>
+
 ## Install
 
 ```sh
