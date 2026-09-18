@@ -1,0 +1,19 @@
+.nodeweave { display: block; width: 100%; height: 100%; overflow: visible; color: var(--nodeweave-color, #9bb0c8); }
+.nodeweave, .nodeweave * { box-sizing: border-box; }
+.nw-connection { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.nw-connection__marker { pointer-events: none; }
+.nw-ambient { pointer-events: none; }
+.nw-ambient__connection { fill: none; stroke-width: .55px; vector-effect: non-scaling-stroke; }
+.nw-node { transform-box: fill-box; transform-origin: center; }
+.nw-node__ring { fill: none; stroke: currentColor; vector-effect: non-scaling-stroke; }
+.nw-node__ring--inner { stroke-width: .7px; opacity: .34; }
+.nw-node__ring--outer { stroke-width: .55px; opacity: .16; }
+.nw-node__particle, .nw-node__mark, .nw-node__core { fill: currentColor; }
+.nw-node__mark { opacity: .38; }
+.nw-node__core--hub { filter: drop-shadow(0 0 2px currentColor) drop-shadow(0 0 5px currentColor); }
+.nw-node--pulse .nw-node__core { animation: nw-node-pulse 2.8s ease-in-out infinite; }
+@keyframes nw-node-pulse { 50% { opacity: .58; } }
+.nw-label { font-family: var(--nodeweave-font-family, ui-monospace, SFMono-Regular, Menlo, monospace); letter-spacing: var(--nodeweave-label-spacing, .07em); text-transform: uppercase; }
+.nw-label--title { fill: var(--nodeweave-label-color, currentColor); font-size: var(--nodeweave-title-size, .86rem); font-weight: var(--nodeweave-title-weight, 400); }
+.nw-label--detail { fill: var(--nodeweave-detail-color, #7f8da1); font-size: var(--nodeweave-detail-size, .7rem); }
+@media (prefers-reduced-motion: reduce) { .nodeweave *, .nodeweave { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
