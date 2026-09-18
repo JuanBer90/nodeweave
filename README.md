@@ -2,6 +2,10 @@
 
 Nodeweave is a small, framework-agnostic TypeScript library for rendering animated node-and-relationship visualizations in SVG. It is useful for maps of people, products, processes, organizations, dependencies, infrastructure, concepts, and any other connected entities. It does not prescribe an architecture diagram or a domain vocabulary.
 
+<p align="center">
+  <img src="./docs/nodeweave-playground.webp" alt="Nodeweave interactive visualization demo" width="100%">
+</p>
+
 ## Install
 
 ```sh
