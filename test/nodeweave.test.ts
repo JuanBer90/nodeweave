@@ -76,7 +76,7 @@ describe('progressive build coordination', () => {
   it('suspends drag during construction, then restores it without changing runtime layout on replay', () => {
     vi.useFakeTimers(); const container = document.body.appendChild(document.createElement('div'));
     const network = new Nodeweave(container, { ...base, animation: { enabled: true, duration: 20, stagger: 10, build: { sequence: ['two', 'one'], labels: { delay: 5 }, connections: { duration: 20 } } }, interaction: { drag: { enabled: true } } });
-    const hit = container.querySelector<SVGRectElement>('[data-nodeweave-hit="one"]')!; hit.dispatchEvent(pointer('pointerdown', 40, 60)); hit.dispatchEvent(pointer('pointermove', 100, 80)); expect(network.getLayout().one).toEqual({ x: 40, y: 60 });
+    const hit = container.querySelector<SVGRectElement>('[data-nodeweave-hit="one"]')!; network.updateInteraction({ drag: { enabled: true } }); expect(network.element.dataset.nodeweaveDrag).toBe('idle'); hit.dispatchEvent(pointer('pointerdown', 40, 60)); hit.dispatchEvent(pointer('pointermove', 100, 80)); expect(network.getLayout().one).toEqual({ x: 40, y: 60 });
     vi.advanceTimersByTime(100); hit.dispatchEvent(pointer('pointerdown', 40, 60)); hit.dispatchEvent(pointer('pointermove', 100, 80)); hit.dispatchEvent(pointer('pointerup', 100, 80)); expect(network.getLayout().one).toEqual({ x: 100, y: 80 });
     network.replay(); expect(network.getLayout().one).toEqual({ x: 100, y: 80 }); network.destroy(); vi.useRealTimers();
   });
@@ -96,10 +96,10 @@ describe('runtime customization', () => {
     expect(network.element).toBe(element); expect(container.textContent).toContain('Renamed'); expect(container.textContent).toContain('Updated'); expect(network.element.style.getPropertyValue('--nodeweave-title-size')).toBe('18px'); expect(container.querySelector('[data-nodeweave-node="one"]')?.getAttribute('style')).toContain('rgb(0, 255, 0)'); network.destroy();
   });
   it('updates connection, ambient, animation, and interaction configuration safely', () => {
-    const container = document.body.appendChild(document.createElement('div')); const network = new Nodeweave(container, { ...base, ambient: { enabled: true, count: 3 }, animation: { enabled: false } });
-    network.updateConnection('one-two-0', { width: 3, opacity: .4, color: '#fff' }); expect(container.querySelector<SVGPathElement>('.nw-connection')?.getAttribute('stroke-width')).toBe('3');
+    const input = structuredClone({ ...base, ambient: { enabled: true, count: 3 }, animation: { enabled: false } }); const container = document.body.appendChild(document.createElement('div')); const network = new Nodeweave(container, input);
+    network.updateConnection('one-two-0', { width: 3, opacity: .4, color: '#fff', markers: { count: 3 } }); expect(container.querySelector<SVGPathElement>('.nw-connection')?.getAttribute('stroke-width')).toBe('3'); expect(container.querySelector<SVGPathElement>('.nw-connection')?.getAttribute('stroke')).toBe('#fff'); expect(container.querySelectorAll('.nw-connection__marker')).toHaveLength(3);
     network.updateAmbient({ enabled: true, count: 7, seed: 'new' }); expect(container.querySelectorAll('.nw-ambient__dot')).toHaveLength(7);
-    network.updateAnimation({ duration: 100, build: { sequence: ['two', 'one'] } }); network.updateInteraction({ drag: { enabled: true, bounds: 'none' } }); expect(network.element.dataset.nodeweaveDrag).toBe('ready'); network.destroy();
+    network.updateAnimation({ duration: 100, build: { sequence: ['two', 'one'] } }); network.updateInteraction({ drag: { enabled: true, bounds: 'none' } }); expect(network.element.dataset.nodeweaveDrag).toBe('ready'); expect(input.ambient).toEqual({ enabled: true, count: 3 }); expect(input.animation).toEqual({ enabled: false }); network.destroy();
   });
 });
 

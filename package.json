@@ -4,6 +4,15 @@
   "description": "Framework-agnostic, configurable node and relationship visualizations for the web.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanBer90/nodeweave.git"
+  },
+  "homepage": "https://github.com/JuanBer90/nodeweave#readme",
+  "bugs": {
+    "url": "https://github.com/JuanBer90/nodeweave/issues"
+  },
+  "keywords": ["svg", "visualization", "graph", "nodes", "network", "typescript", "animation"],
   "sideEffects": ["./dist/nodeweave.css"],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
