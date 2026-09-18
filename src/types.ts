@@ -66,6 +66,7 @@ export type AmbientHub = Point & { bias?: number };
 export type AmbientOptions = {
   enabled?: boolean;
   count?: number;
+  size?: number;
   colors?: readonly string[];
   opacity?: number;
   connectionOpacity?: number;
@@ -113,6 +114,10 @@ export type DragOptions = {
   onEnd?: (change: LayoutChange) => void;
 };
 export type InteractionOptions = { drag?: DragOptions };
+export type TypographyValue = string | number;
+export type TypographyOptions = { labelSize?: TypographyValue; detailSize?: TypographyValue };
+export type NodeUpdate = Partial<Pick<NodeDefinition, 'label' | 'detail' | 'color' | 'opacity' | 'geometry' | 'labelPosition' | 'draggable' | 'className'>>;
+export type ConnectionUpdate = Partial<Pick<ConnectionDefinition, 'color' | 'fromColor' | 'toColor' | 'opacity' | 'width' | 'style' | 'markers' | 'className' | 'path'>>;
 
 export type NodeweaveOptions = {
   width: number;
@@ -124,6 +129,7 @@ export type NodeweaveOptions = {
   ambient?: AmbientOptions;
   animation?: AnimationOptions;
   interaction?: InteractionOptions;
+  typography?: TypographyOptions;
   className?: string;
   ariaLabel?: string;
 };
@@ -135,6 +141,12 @@ export type NodeweaveInstance = {
   getLayout(): Readonly<Record<string, Point>>;
   setLayout(layout: Readonly<Record<string, Point>>): void;
   resetLayout(): void;
+  updateNode(id: string, update: NodeUpdate): void;
+  updateConnection(id: string, update: ConnectionUpdate): void;
+  updateTypography(update: TypographyOptions): void;
+  updateAmbient(update: AmbientOptions): void;
+  updateAnimation(update: AnimationOptions): void;
+  updateInteraction(update: InteractionOptions): void;
   replay(): void;
   resize(width: number, height: number): void;
   destroy(): void;

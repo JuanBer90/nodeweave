@@ -152,6 +152,21 @@ network.resetLayout(); // restores every declarative position
 
 `setLayout()` rejects unknown node IDs and non-finite coordinates. Drag callbacks receive `{ id, previousPosition, position, pointerType }`, which can be used by a consumer to persist a layout. Dragging provides pointer semantics only; Nodeweave does not falsely expose decorative nodes as keyboard buttons.
 
+## Runtime customization
+
+For developer tools and live editors, Nodeweave provides small typed updates without remounting the visualization. They update only the affected node, connection, typography values, or ambient layer; animation changes are used by the next `replay()`.
+
+```ts
+weave.updateNode('research', { label: 'Discovery', color: '#66e0b2', opacity: .9 });
+weave.updateConnection('research-launch-0', { width: 1.5, opacity: .6 });
+weave.updateTypography({ labelSize: 15, detailSize: '.72rem' });
+weave.updateAmbient({ enabled: true, count: 500, size: 1.15, reach: 42 });
+weave.updateAnimation({ stagger: 120 });
+weave.updateInteraction({ drag: { enabled: true, bounds: 'container' } });
+```
+
+Typography values may be CSS sizes such as `'.8rem'` or numbers, which are interpreted as pixels. CSS custom properties remain available and are overridden only when a corresponding runtime typography value is supplied.
+
 ## Lifecycle and TypeScript
 
 `new Nodeweave(container, options)` mounts one SVG into the supplied HTMLElement. `resize(width, height)` changes its viewBox. `replay()` repeats its configured build at the current runtime layout. `getLayout()`, `setLayout()`, and `resetLayout()` manage that layout. `destroy()` is idempotent and removes the SVG, pointer listeners/capture, timers, animation frame, and observer. Calls that cannot be meaningful after destroy throw a useful error.
@@ -168,7 +183,7 @@ npm run playground
 
 ## Public API
 
-- `Nodeweave`: constructor, `element`, `nodes`, `connections`, `getLayout()`, `setLayout()`, `resetLayout()`, `replay()`, `resize()`, and `destroy()`.
+- `Nodeweave`: constructor, `element`, `nodes`, `connections`, layout methods, `updateNode()`, `updateConnection()`, `updateTypography()`, `updateAmbient()`, `updateAnimation()`, `updateInteraction()`, `replay()`, `resize()`, and `destroy()`.
 - `resolveNodes()`, `resolveConnections()`, and `resolveBuildSequence()`: exported validation/default-resolution helpers.
 - `anchors()`: calculates the default visible endpoints for two resolved nodes.
 - `createRandom()`: deterministic indexed random generator used for repeatable visual fields.
