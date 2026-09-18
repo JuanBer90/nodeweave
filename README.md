@@ -97,15 +97,64 @@ ambient: {
 
 ## Animation and reduced motion
 
-`animation` controls deterministic intro timing. Set `enabled: false` to render immediately. By default Nodeweave respects `prefers-reduced-motion`; pass `respectReducedMotion: false` only when that is appropriate for the experience. `replay()` cancels the previous intro and starts it from the beginning.
+`animation` controls deterministic intro timing. Set `enabled: false` to render immediately. By default Nodeweave respects `prefers-reduced-motion`; pass `respectReducedMotion: false` only when that is appropriate for the experience. `replay()` cancels the previous intro and starts it from the beginning without resetting the runtime layout.
 
 ```ts
 animation: { enabled: true, duration: 560, delay: 100, stagger: 90, easing: 'cubic-bezier(.22,1,.36,1)' }
 ```
 
+### Progressive builds
+
+`animation.build` separates the construction of node geometry, labels/details, connections, and ambient content. Supported node effects are `fade`, `scale`, and `fade-scale`; connections use `fade` or `draw`. An explicit node `sequence` must include every node exactly once. A connection sequence, when supplied, must likewise include every connection exactly once.
+
+```ts
+animation: {
+  duration: 440,
+  stagger: 130,
+  build: {
+    sequence: ['research', 'launch'],
+    geometry: { effect: 'fade-scale', duration: 440 },
+    labels: { effect: 'fade', delay: 80, duration: 320 },
+    connections: { effect: 'draw', delay: 110, duration: 560 },
+    ambient: { effect: 'fade', delay: 200 },
+  },
+}
+```
+
+The node sequence is construction order, not a graph traversal. Replay always uses the current node positions; call `resetLayout()` first when reconstruction should start at the declarative layout.
+
+## Dragging and runtime layout
+
+Dragging is opt-in. It uses Pointer Events, supports mouse/touch/pen, captures the active pointer, and is automatically unavailable while a build animation is running. It becomes available after construction finishes and is suspended again by `replay()`.
+
+```ts
+const network = new Nodeweave(canvas, {
+  // ...nodes and connections
+  interaction: {
+    drag: {
+      enabled: true,
+      bounds: 'container', // default; use 'none' for unbounded coordinates
+      onMove: ({ id, position }) => console.log(id, position),
+    },
+  },
+});
+```
+
+Set `draggable: false` on an individual node to opt it out. A dragged node is a single SVG group: its core, rings, particles, labels, detail text, and hit region stay anchored together. Only relationships incident to that node are recomputed while it moves.
+
+Nodeweave keeps supplied configuration immutable. It owns a separate runtime layout map:
+
+```ts
+network.setLayout({ research: { x: 210, y: 140 } }); // partial layouts are supported
+const layout = network.getLayout(); // returns a safe copy
+network.resetLayout(); // restores every declarative position
+```
+
+`setLayout()` rejects unknown node IDs and non-finite coordinates. Drag callbacks receive `{ id, previousPosition, position, pointerType }`, which can be used by a consumer to persist a layout. Dragging provides pointer semantics only; Nodeweave does not falsely expose decorative nodes as keyboard buttons.
+
 ## Lifecycle and TypeScript
 
-`new Nodeweave(container, options)` mounts one SVG into the supplied HTMLElement. `resize(width, height)` changes its viewBox. `replay()` repeats its configured intro. `destroy()` is idempotent and removes the SVG, timers, animation frame, and observer. Calls that cannot be meaningful after destroy throw a useful error.
+`new Nodeweave(container, options)` mounts one SVG into the supplied HTMLElement. `resize(width, height)` changes its viewBox. `replay()` repeats its configured build at the current runtime layout. `getLayout()`, `setLayout()`, and `resetLayout()` manage that layout. `destroy()` is idempotent and removes the SVG, pointer listeners/capture, timers, animation frame, and observer. Calls that cannot be meaningful after destroy throw a useful error.
 
 The package ships strict declaration files. All configuration types—including `NodeweaveOptions`, `NodeDefinition`, `ConnectionDefinition`, `ConnectionPathContext`, and `AmbientOptions`—are exported from the package root.
 
@@ -119,7 +168,7 @@ npm run playground
 
 ## Public API
 
-- `Nodeweave`: constructor, `element`, `nodes`, `connections`, `replay()`, `resize()`, and `destroy()`.
-- `resolveNodes()` and `resolveConnections()`: exported validation/default-resolution helpers.
+- `Nodeweave`: constructor, `element`, `nodes`, `connections`, `getLayout()`, `setLayout()`, `resetLayout()`, `replay()`, `resize()`, and `destroy()`.
+- `resolveNodes()`, `resolveConnections()`, and `resolveBuildSequence()`: exported validation/default-resolution helpers.
 - `anchors()`: calculates the default visible endpoints for two resolved nodes.
 - `createRandom()`: deterministic indexed random generator used for repeatable visual fields.

@@ -29,7 +29,19 @@ const dexstoore: NodeweaveOptions = {
     { id: 'fulfillment-whatsapp', from: 'fulfillment', to: 'whatsapp', fromColor: 'var(--blue)', toColor: 'var(--yellow)', markers: {}, path: curve('fulfillment-whatsapp', ({ from, to, anchors: a }) => `M${a.start.x} ${a.start.y} C${from.position.x + 55} ${from.position.y + 95} ${to.position.x - 25} ${to.position.y - 70} ${a.end.x} ${a.end.y}`) },
   ],
   ambient: { enabled: true, count: 1280, colors: ['var(--cyan)', 'var(--blue)', 'var(--cyan)', 'var(--green)', 'var(--orange)', 'var(--violet)', 'var(--red)', 'var(--yellow)'], opacity: 1, connectionOpacity: .07, reach: 38, seed: 'dexstoore', movement: true, speed: .00065, hubs: [{ x: 404, y: 206, bias: 1.05 }, { x: 388, y: 334, bias: 1.35 }, { x: 108, y: 498, bias: 1 }, { x: 648, y: 486, bias: 1.08 }] },
-  animation: { enabled: true, duration: 560, stagger: 100, easing: 'cubic-bezier(.22,1,.36,1)', nodeReveal: true, connectionReveal: true, ambientReveal: true, respectReducedMotion: true },
+  animation: {
+    enabled: true, duration: 440, stagger: 136, easing: 'cubic-bezier(.22,1,.36,1)', respectReducedMotion: true,
+    build: {
+      sequence: ['storefront', 'commerce-api', 'order-engine', 'operations', 'fulfillment', 'email', 'whatsapp'],
+      geometry: { effect: 'fade-scale', duration: 440 },
+      labels: { effect: 'fade', duration: 360, delay: 80 },
+      connections: { effect: 'draw', duration: 560, delay: 110, sequence: ['storefront-commerce-api', 'commerce-api-order-engine', 'order-engine-operations', 'order-engine-fulfillment', 'fulfillment-email', 'fulfillment-whatsapp'] },
+      ambient: { effect: 'fade', duration: 460, delay: 248 },
+    },
+  },
+  interaction: { drag: { enabled: true, bounds: 'container' } },
 };
 
-new Nodeweave(document.querySelector<HTMLElement>('#scene')!, dexstoore);
+const network = new Nodeweave(document.querySelector<HTMLElement>('#scene')!, dexstoore);
+document.querySelector<HTMLButtonElement>('#reset')!.addEventListener('click', () => network.resetLayout());
+document.querySelector<HTMLButtonElement>('#replay')!.addEventListener('click', () => network.replay());

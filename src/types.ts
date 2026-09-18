@@ -24,6 +24,8 @@ export type NodeDefinition<TMeta = unknown> = {
   geometry?: NodeGeometry;
   className?: string;
   metadata?: TMeta;
+  /** Overrides global dragging for this node when interaction.drag is enabled. */
+  draggable?: boolean;
 };
 
 export type ResolvedNode<TMeta = unknown> = Omit<NodeDefinition<TMeta>, 'geometry'> & {
@@ -85,7 +87,32 @@ export type AnimationOptions = {
   connectionReveal?: boolean;
   ambientReveal?: boolean;
   nodePulse?: boolean;
+  /** Configures the progressive construction sequence. */
+  build?: BuildAnimationOptions;
 };
+
+export type BuildEffect = 'fade' | 'scale' | 'fade-scale';
+export type BuildPartOptions = { effect?: BuildEffect; duration?: number; delay?: number };
+export type ConnectionBuildOptions = Omit<BuildPartOptions, 'effect'> & { effect?: 'fade' | 'draw'; sequence?: readonly string[] };
+export type BuildAnimationOptions = {
+  /** Exact node order. When supplied it must contain every node exactly once. */
+  sequence?: readonly string[];
+  geometry?: BuildPartOptions;
+  labels?: BuildPartOptions;
+  connections?: ConnectionBuildOptions;
+  ambient?: BuildPartOptions;
+};
+
+export type DragBounds = 'container' | 'none';
+export type LayoutChange = { id: string; position: Point; previousPosition: Point; pointerType?: string };
+export type DragOptions = {
+  enabled?: boolean;
+  bounds?: DragBounds;
+  onStart?: (change: LayoutChange) => void;
+  onMove?: (change: LayoutChange) => void;
+  onEnd?: (change: LayoutChange) => void;
+};
+export type InteractionOptions = { drag?: DragOptions };
 
 export type NodeweaveOptions = {
   width: number;
@@ -96,6 +123,7 @@ export type NodeweaveOptions = {
   connectionDefaults?: Partial<Omit<ResolvedConnection, 'id' | 'from' | 'to' | 'path' | 'className'>>;
   ambient?: AmbientOptions;
   animation?: AnimationOptions;
+  interaction?: InteractionOptions;
   className?: string;
   ariaLabel?: string;
 };
@@ -104,6 +132,9 @@ export type NodeweaveInstance = {
   readonly element: SVGSVGElement;
   readonly nodes: readonly ResolvedNode[];
   readonly connections: readonly ResolvedConnection[];
+  getLayout(): Readonly<Record<string, Point>>;
+  setLayout(layout: Readonly<Record<string, Point>>): void;
+  resetLayout(): void;
   replay(): void;
   resize(width: number, height: number): void;
   destroy(): void;

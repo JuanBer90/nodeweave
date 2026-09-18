@@ -5,6 +5,10 @@
 .nw-ambient { pointer-events: none; }
 .nw-ambient__connection { fill: none; stroke-width: .55px; vector-effect: non-scaling-stroke; }
 .nw-node { transform-box: fill-box; transform-origin: center; }
+.nw-node__visual, .nw-node__labels { transform-box: fill-box; transform-origin: center; }
+.nw-node__hit { pointer-events: none; cursor: default; touch-action: none; }
+.nodeweave[data-nodeweave-drag='ready'] .nw-node__hit { pointer-events: all; cursor: grab; }
+.nodeweave[data-nodeweave-drag='ready'] .nw-node__hit--dragging { cursor: grabbing; }
 .nw-node__ring { fill: none; stroke: currentColor; vector-effect: non-scaling-stroke; }
 .nw-node__ring--inner { stroke-width: .7px; opacity: .34; }
 .nw-node__ring--outer { stroke-width: .55px; opacity: .16; }

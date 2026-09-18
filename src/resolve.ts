@@ -25,6 +25,7 @@ export function resolveNodes(options: NodeweaveOptions): ResolvedNode[] {
     const inputGeometry = { ...options.nodeDefaults?.geometry, ...node.geometry };
     return {
       ...node,
+      position: { x: node.position.x, y: node.position.y },
       color: node.color ?? options.nodeDefaults?.color ?? 'currentColor',
       opacity: positive(node.opacity, `node "${node.id}" opacity`, options.nodeDefaults?.opacity ?? 1),
       geometry: {
@@ -39,6 +40,19 @@ export function resolveNodes(options: NodeweaveOptions): ResolvedNode[] {
       labelPosition: { x: node.labelPosition?.x ?? node.position.x + 40, y: node.labelPosition?.y ?? node.position.y - 4, anchor: node.labelPosition?.anchor ?? 'start' },
     };
   });
+}
+
+/** Resolves and validates a complete explicit build order. */
+export function resolveBuildSequence(sequence: readonly string[] | undefined, nodes: readonly ResolvedNode[]): readonly string[] {
+  if (sequence === undefined) return nodes.map((node) => node.id);
+  if (sequence.length !== nodes.length) throw new Error('Nodeweave: build sequence must include every node exactly once.');
+  const ids = new Set(nodes.map((node) => node.id)); const seen = new Set<string>();
+  for (const id of sequence) {
+    if (!ids.has(id)) throw new Error(`Nodeweave: build sequence references an unknown node "${id}".`);
+    if (seen.has(id)) throw new Error(`Nodeweave: build sequence contains duplicate node id "${id}".`);
+    seen.add(id);
+  }
+  return [...sequence];
 }
 
 export function resolveConnections(definitions: readonly ConnectionDefinition[] = [], nodes: readonly ResolvedNode[], options: NodeweaveOptions): ResolvedConnection[] {
